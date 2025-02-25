@@ -12,6 +12,10 @@ on:
     - cron: '0 0 * * *'  # Runs daily at midnight UTC
   workflow_dispatch:  # Allows manual triggering
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   check-and-update:
     runs-on: ubuntu-latest
@@ -46,6 +50,8 @@ jobs:
             echo "New version available."
             echo "skip=false" >> $GITHUB_ENV
           fi
+          
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
 
       - name: Fetch MakeMKV version history
         if: env.skip == 'false'
@@ -71,18 +77,19 @@ jobs:
 
       - name: Create Pull Request
         if: env.skip == 'false'
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           branch: update-makemkv-${{ env.MAKEMKV_VERSION }}
-          title: "Update MakeMKV to v${{ env.MAKEMKV_VERSION }}"
+          title: "[FEATURE] Update MakeMKV to ${{ env.MAKEMKV_VERSION }} from ${{ env.CURRENT_VERSION }}"
           body: |
-            A new version of MakeMKV has been released: **v${{ env.MAKEMKV_VERSION }}**.
+            ## MakeMKV Update
+            A new version of MakeMKV has been released
+            Old Version: ${{ env.CURRENT_VERSION }}
+            New Version: ${{ env.MAKEMKV_VERSION }}
+            
+            This PR updates `VERSION_MAKEMKV` to reflect the latest release.
 
             ### Version History:
             ```
             ${{ env.VERSION_HISTORY }}
             ```
-
-            This PR updates `VERSION_MAKEMKV` to reflect the latest release.
-          draft: false
