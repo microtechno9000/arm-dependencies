@@ -1,0 +1,4 @@
+MakeMKV v1.17.9 (1.2.2025)
+
+Version bump, no changes
+Updated translations
